@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serverless URL Shortener</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f3f4f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+        #result { margin-top: 20px; font-size: 16px; font-weight: 500; }
+        a { color: #2563eb; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>URL Shortener</h2>
+        <input type="url" id="longUrl" placeholder="Enter long URL (e.g., https://sppu.ac.in)" required />
+        <button onclick="shortenUrl()" id="submitBtn">Shorten Link</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // PASTE YOUR V1 STAGE INVOKE URL BELOW
+        const API_URL = "https://2s5shw12n8.execute-api.ap-southeast-2.amazonaws.com/v1";
+
+        async function shortenUrl() {
+            const longUrl = document.getElementById('longUrl').value;
+            const resultDiv = document.getElementById('result');
+            const btn = document.getElementById('submitBtn');
+            
+            if (!longUrl) return alert("Please enter a URL");
+
+            btn.innerText = "Processing...";
+            resultDiv.innerHTML = "";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ longUrl: longUrl })
+                });
+                
+                const data = await response.json();
+                
+                if (data.shortUrl) {
+                    resultDiv.innerHTML = `Short Link: <br><br><a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>`;
+                } else {
+                    resultDiv.innerHTML = "Error generating link. Check console.";
+                }
+            } catch (error) {
+                resultDiv.innerHTML = "Failed to connect to API Gateway.";
+                console.error(error);
+            } finally {
+                btn.innerText = "Shorten Link";
+            }
+        }
+    </script>
+</body>
+</html>
